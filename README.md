@@ -3,5 +3,5 @@
 To run:
 
 ```bash
-bun run index.ts
+curl -fsSL https://bun.sh/install | bash && bun run index.ts
 ```
