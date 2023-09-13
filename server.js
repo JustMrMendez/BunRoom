@@ -1,25 +1,28 @@
 import { getErrorPage } from "./modules/ErrorHandling";
-import { compile } from "./modules/Compiler";
+import { watch } from "fs";
+
+const watcher = watch(import.meta.dir, { recursive: true });
 
 // File server with simple router
 const BASE_PATH = ".";
-Bun.serve({
+const server = Bun.serve({
 	port: 3000,
 	async fetch(req) {
 		let url = new URL(req.url);
 		let filePath = BASE_PATH + url.pathname;
-		console.log("Initial file path:", filePath);
+		// console.log("Initial file path:", filePath);
 
-		let routePath: string = "";
+		let routePath = "";
 		try {
 			// Serving static files from the public directory
 			if (
 				filePath.match(/\.(css|js|json|png|jpg|jpeg|gif|svg|ico|txt)$/)
 			) {
-                // include the 
+				// make sure to serve the root style.css file too if the path
+
 				filePath = "./public" + url.pathname;
 				const file = Bun.file(filePath);
-				console.log("Returning public file:", filePath);
+				// console.log("Returning public file:", filePath);
 				return new Response(file);
 			}
 
@@ -33,9 +36,6 @@ Bun.serve({
 
 			const file = Bun.file(filePath);
 			let fileContents = await file.text(); // Adding this line to read file contents
-
-			// Compile the HTML contents using your compile function
-			fileContents = await compile(fileContents);
 
 			const response = new Response(fileContents, {
 				headers: {
@@ -53,11 +53,8 @@ Bun.serve({
 				);
 				if (errorFilePath) {
 					const errorFileContent = Bun.file(errorFilePath);
-					// compile the error file content
-					const compiledErrorFileContent = await compile(
-						await errorFileContent.text()
-					);
-					return new Response(compiledErrorFileContent, {
+
+					return new Response(errorFileContent, {
 						headers: { "content-type": "text/html" },
 					});
 				}
@@ -73,6 +70,13 @@ Bun.serve({
 	},
 });
 
-console.log(
-	`Development server is running. Open http://localhost:3000/ in your browser.`
-);
+watcher.on("change", (event, filename) => {
+	console.log(`Detected ${event} in ${filename}`);
+});
+process.on("SIGINT", () => {
+	// close watcher when Ctrl-C is pressed
+	console.log("Closing watcher...");
+	watcher.close();
+	process.exit(0);
+});
+console.log("Server running at http://localhost:3000");

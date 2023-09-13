@@ -1,0 +1,19 @@
+{
+	"name": "My Dev Container",
+	"image": "debian:latest",
+	"postCreateCommand": [
+		"curl -fsSL https://bun.sh/install | bash",
+		"bun dev"
+	],
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"editor.defaultFormatter": "esbenp.prettier-vscode",
+				"workbench.editorAssociations": {
+					"*.md": "vscode.markdown.preview.editor"
+				}
+			},
+			"extensions": ["esbenp.prettier-vscode"]
+		}
+	}
+}
