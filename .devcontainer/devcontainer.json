@@ -1,6 +1,6 @@
 {
 	"name": "My Dev Container",
-	"image": "debian:latest",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:0-16",
 	"postCreateCommand": [
 		"curl -fsSL https://bun.sh/install | bash",
 		"bun dev"
